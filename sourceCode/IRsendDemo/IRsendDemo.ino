@@ -68,10 +68,10 @@ void setup()
 {
   irsend.begin();
   Serial.begin(115200, SERIAL_8N1, SERIAL_TX_ONLY);
-  WiFiManager wifiManager;
-  wifiManager.autoConnect("AirConditional-IoT");
-  Serial.print("connected to");
-  Serial.println(WiFi.localIP());
+  // WiFiManager wifiManager;
+  // wifiManager.autoConnect("AirConditional-IoT");
+  // Serial.print("connected to");
+  // Serial.println(WiFi.localIP());
 }
 
 void loop()
