@@ -43,4 +43,4 @@ void loop()
   display.drawString(5, 40, "HUMI:" + String(humi, 2) + " %");
   Serial.println("HUMI:" + String(humi, 2));
   display.display();
-Ư
+}
