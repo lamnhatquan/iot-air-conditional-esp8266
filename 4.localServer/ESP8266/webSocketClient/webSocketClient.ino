@@ -1,14 +1,17 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include "SSD1306.h"
 #include <WebSocketsClient.h> //https://github.com/Links2004/arduinoWebSockets
-WebSocketsClient webSocket;
 #include "DHT.h"
 #define DHTPIN 10
 #define DHTTYPE DHT11
+
+WebSocketsClient webSocket;
 DHT dht(DHTPIN, DHTTYPE);
+SSD1306  display(0x3c, 4, 5);
+
 unsigned long previousMillis = 0;
 const long interval = 3000;
-
 const char* ssid = "The Coffee House";
 const char* password = "thecoffeehouse";
 //const char* ssid = "iotmaker.vn";
@@ -45,43 +48,65 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 }
 
 void setup() {
-
+  
+  //  Config I/O
   pinMode(LED_20_DEG, OUTPUT);
   pinMode(LED_30_DEG, OUTPUT);
   pinMode(BTN, INPUT);
+
+  //  Init Serial
   Serial.begin(115200);
   Serial.println("ESP8266 Websocket Client");
-  //  dht.begin();
+  
+  //  Init OLED to display
+  display.init();
+  display.flipScreenVertically();
+  display.setFont(ArialMT_Plain_16);
+  display.flipScreenVertically();
+  display.drawString(5, 10, "Internet of Things");
+  display.drawString(40, 30, "IoT A/C");
+  display.display();
+  delay(5000);
+  
+  // Init dht
+  dht.begin();
+
+  //  Init and connect to Wifi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
   Serial.println("connected");
-  webSocket.begin("10.237.219.224", 8000);// IP address của máy tính khi kết nối cùng 1 network wifi với ESP8266
+
+  //  Init webcocket client
+  webSocket.begin("10.237.219.224", 8000);// IP address your computer
   webSocket.onEvent(webSocketEvent);
 }
 
 void loop()
 {
   webSocket.loop();
-  //  delay(3000); // greater than 3s to stable
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
+    display.clear();
     previousMillis = currentMillis;
     float temp = dht.readTemperature();
     float humi = dht.readHumidity();
-//    String STemp = String(temp);
-//    String SHumi = String(humi);
-    String dataDHT =  "{\"temp\":" + String(temp) + ",\"humi\":" + String(humi) + "}"; //  {"temp":"23.00","humi":"57.00"}
-
-    //    Serial.println(STemp);
-    //    Serial.println(SHumi);
+    if (isnan(temp) || isnan(humi)) {
+      Serial.println("Failed to read from DHT sensor!");
+      return;
+    }
+    String dataDHT =  "{\"temp\":" + String(temp) + ",\"humi\":" + String(humi) + "}"; // Send data format JSON {"temp":"23.00","humi":"57.00"}
     Serial.println(dataDHT);
-
-//    webSocket.sendTXT(STemp);
-//    webSocket.sendTXT(SHumi);
     webSocket.sendTXT(dataDHT);
+    
+    //Display to OLED
+    display.drawString(5, 10, "TEMP:" + String(temp, 2) + " Deg");
+    Serial.println("TEMP:" + String(temp, 2));
+    display.drawString(5, 40, "HUMI:" + String(humi, 2) + " %");
+    Serial.println("HUMI:" + String(humi, 2));
+    display.display();
   }
 }
 

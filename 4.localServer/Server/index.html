@@ -22,14 +22,12 @@
 			var url = window.location.host; // hàm trả về url của trang hiện tại kèm theo port
 			var ws = new WebSocket('ws://' + url + '/ws'); // mở 1 websocket với port 8000
 			console.log('connecting...')
-			
-			// Lay gia tri hien thi len textbox
-			// document.getElementById("temp").value = data[0].temp;
-			// document.getElementById("humd").value = data[0].humd;
+
 			 ws.onopen = function()  {// hàm thực hiện khi ws được mở
 			 	document.getElementById('status').innerHTML = 'Connected';
 			 	console.log('connected...')
 			 };
+
 			 ws.onmessage = function(evt) // sự kiện xảy ra khi client nhận dữ liệu từ server
 			 {
 			 	console.log(evt.data)
@@ -42,14 +40,9 @@
 			             } else if(evt.data == 'BTN_RELEASE') {
 			                 textHumi.value = 308266;
 			             } 
-			             //else if(evt.data == 'LED_OFF') {
-			             //    led.checked = false;
-			             //} else if(evt.data == 'LED_ON') {
-			             //    led.checked = true;
-			             //}
 			        };
+			 
 			 ws.onclose = function() { // hàm này sẽ được thực hiện khi đóng websocket
-			            // led.disabled = true;
 			            document.getElementById('status').innerHTML = 'Disconnected';
 			        };
 			//         led.onchange = function() { // thực hiện thay đổi bật/tắt led đồng bộ giữa các web-browser
@@ -71,17 +64,18 @@
  				ws.send(btn20Deg.value);
 
 			});
+
 			btn30Deg.addEventListener('click', function (event) {
  				console.log('Pressed 30 degree button');
  				btn30Deg.value = "BTN_30_PRESSED";
  				ws.send(btn30Deg.value);
 			});
+
 			btnOnOff.addEventListener('click', function (event) {
  				console.log('Pressed on/off button');
  				btnOnOff.value = "BTN_ONOFF_PRESSED";
  				ws.send(btnOnOff.value);
 			});
-
 		</script>
 	</body>
 </html>
