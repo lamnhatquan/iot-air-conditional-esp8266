@@ -1,11 +1,18 @@
 #include <Arduino.h>
-
 #include <ESP8266WiFi.h>
 #include <WebSocketsClient.h> //https://github.com/Links2004/arduinoWebSockets
 WebSocketsClient webSocket;
+#include "DHT.h"
+#define DHTPIN 10
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+unsigned long previousMillis = 0;
+const long interval = 3000;
 
 const char* ssid = "The Coffee House";
 const char* password = "thecoffeehouse";
+//const char* ssid = "iotmaker.vn";
+//const char* password = "@iotmaker.vn";
 const int LED_20_DEG = 13;
 const int LED_30_DEG = 14;
 const int BTN = 0;
@@ -22,11 +29,11 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       break;
     case WStype_TEXT:
       Serial.printf("[WSc] get text: %s\n", payload);
-      if(strcmp((char*)payload, "BTN_20_PRESSED") == 0) {
+      if (strcmp((char*)payload, "BTN_20_PRESSED") == 0) {
         digitalWrite(LED_20_DEG, 1); // Khi client (web-browser) phát sự kiện "BTN_20_PRESSED" thì server sẽ broadcast gói tin đến ESP8266
-      } else if(strcmp((char*)payload, "BTN_30_PRESSED") == 0) { 
+      } else if (strcmp((char*)payload, "BTN_30_PRESSED") == 0) {
         digitalWrite(LED_30_DEG, 1);
-      } else if(strcmp((char*)payload, "BTN_ONOFF_PRESSED") == 0) {
+      } else if (strcmp((char*)payload, "BTN_ONOFF_PRESSED") == 0) {
         digitalWrite(LED_20_DEG, 0);
         digitalWrite(LED_30_DEG, 0);
       }
@@ -38,12 +45,13 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 }
 
 void setup() {
-  
+
   pinMode(LED_20_DEG, OUTPUT);
   pinMode(LED_30_DEG, OUTPUT);
   pinMode(BTN, INPUT);
   Serial.begin(115200);
   Serial.println("ESP8266 Websocket Client");
+  //  dht.begin();
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -54,14 +62,26 @@ void setup() {
   webSocket.onEvent(webSocketEvent);
 }
 
-void loop() {
+void loop()
+{
   webSocket.loop();
-  static bool isPressed = false;
-  if (!isPressed && digitalRead(BTN) == 0) { //Nhấn nút nhấn GPIO0
-    isPressed = true;
-    webSocket.sendTXT("BTN_PRESSED");
-  } else if (isPressed && digitalRead(BTN)) { //Nhả nút nhấn GPIO0
-    isPressed = false;
-    webSocket.sendTXT("BTN_RELEASE");
+  //  delay(3000); // greater than 3s to stable
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    float temp = dht.readTemperature();
+    float humi = dht.readHumidity();
+//    String STemp = String(temp);
+//    String SHumi = String(humi);
+    String dataDHT =  "{\"temp\":" + String(temp) + ",\"humi\":" + String(humi) + "}"; //  {"temp":"23.00","humi":"57.00"}
+
+    //    Serial.println(STemp);
+    //    Serial.println(SHumi);
+    Serial.println(dataDHT);
+
+//    webSocket.sendTXT(STemp);
+//    webSocket.sendTXT(SHumi);
+    webSocket.sendTXT(dataDHT);
   }
 }
+
