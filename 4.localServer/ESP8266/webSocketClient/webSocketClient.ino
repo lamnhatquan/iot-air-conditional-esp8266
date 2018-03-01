@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include "SSD1306.h"
+#include "WiFiManager.h"
 #include <WebSocketsClient.h> //https://github.com/Links2004/arduinoWebSockets
 #include "DHT.h"
 #define DHTPIN 10
@@ -46,9 +47,36 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       break;
   }
 }
+void setupWifi()
+{
+  WiFiManager wifiManager;
+  Serial.println("Wifi Manager");
+  Serial.println("Connecting");
+
+  display.clear();
+  display.drawString(10, 10, "Wifi Manager");
+  display.drawString(0, 30, "Access-your-network");
+  display.display();
+  delay(3000);
+  //  if (!wifiManager.autoConnect("IOTMAKER_" + String(ESP.getChipId()).c_str())) {
+  if (!wifiManager.autoConnect(("IOTMAKER_" + String(ESP.getChipId())).c_str())) {
+    Serial.println("failed to connect and hit timeout");
+    ESP.reset();
+    delay(1000);
+  }
+  display.clear();
+  display.drawString(20, 20, "Connected");
+  display.display();
+  delay(2000);
+  Serial.print("Connect to your SSID network:\t");
+  String yourSSID = ("IOTMAKER_" + String(ESP.getChipId())).c_str();
+  Serial.println(yourSSID);
+  Serial.println("Access to local IP 192.168.4.1 -> Configure Wifi");
+
+}
 
 void setup() {
-  
+
   //  Config I/O
   pinMode(LED_20_DEG, OUTPUT);
   pinMode(LED_30_DEG, OUTPUT);
@@ -57,7 +85,7 @@ void setup() {
   //  Init Serial
   Serial.begin(115200);
   Serial.println("ESP8266 Websocket Client");
-  
+
   //  Init OLED to display
   display.init();
   display.flipScreenVertically();
@@ -67,20 +95,22 @@ void setup() {
   display.drawString(40, 30, "IoT A/C");
   display.display();
   delay(5000);
-  
   // Init dht
   dht.begin();
 
-  //  Init and connect to Wifi
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("connected");
+  //  //  Init and connect to Wifi
+  //  WiFi.begin(ssid, password);
+  //  while (WiFi.status() != WL_CONNECTED) {
+  //    delay(500);
+  //    Serial.print(".");
+  //  }
+  //  Serial.println("connected");
 
+  // Init and connect to Wifi using Wifi Manager
+  setupWifi();
   //  Init webcocket client
-  webSocket.begin("10.237.219.224", 8000);// IP address your computer
+
+  webSocket.begin("10.237.219.224", 8000);  // IP address your computer
   webSocket.onEvent(webSocketEvent);
 }
 
@@ -100,7 +130,7 @@ void loop()
     String dataDHT =  "{\"temp\":" + String(temp) + ",\"humi\":" + String(humi) + "}"; // Send data format JSON {"temp":"23.00","humi":"57.00"}
     Serial.println(dataDHT);
     webSocket.sendTXT(dataDHT);
-    
+
     //Display to OLED
     display.drawString(5, 10, "TEMP:" + String(temp, 2) + " Deg");
     Serial.println("TEMP:" + String(temp, 2));
