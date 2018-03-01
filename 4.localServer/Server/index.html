@@ -34,12 +34,14 @@
 			 	var jsonDataDHT = JSON.parse(evt.data);
 			 	textTemp.value = jsonDataDHT.temp;
 			 	textHumi.value  = jsonDataDHT.humi;
+				
 				// Nếu ESP gửi các dữ liệu  BTN_PRESSED, BTN_RELEASE, 		 
-			             if(evt.data == 'BTN_PRESSED') {
-			                  textTemp.value = 208266;
-			             } else if(evt.data == 'BTN_RELEASE') {
-			                 textHumi.value = 308266;
-			             } 
+			             	
+			             	// 	if(evt.data == 'BTN_PRESSED') {
+			             	//      		textTemp.value = 208266;
+			             	// 	} else if(evt.data == 'BTN_RELEASE') {
+			             	//     		textHumi.value = 308266;
+			             	// 	} 
 			        };
 			 
 			 ws.onclose = function() { // hàm này sẽ được thực hiện khi đóng websocket
@@ -57,24 +59,53 @@
 			//     }
 			//     ws.send(led_status);
 			// }
-			
+			var buttonCode;
+			var lastStatusOnOff;
 			btn20Deg.addEventListener('click', function (event) {
- 				console.log('Pressed 20 degree button');
- 				btn20Deg.value = "BTN_20_PRESSED";
- 				ws.send(btn20Deg.value);
-
+ 				console.log('Pressed 20 degree button')
+ 				console.log(lastStatusOnOff)
+ 				console.log(buttonCode)
+ 				buttonCode = 20;
+ 				if(lastStatusOnOff == 1) {
+ 					console.log('Pressed 20, current on');
+ 					btn20Deg.value = "BTN_20_ON";
+ 					ws.send(btn20Deg.value);
+ 				} 
 			});
 
 			btn30Deg.addEventListener('click', function (event) {
- 				console.log('Pressed 30 degree button');
- 				btn30Deg.value = "BTN_30_PRESSED";
- 				ws.send(btn30Deg.value);
+ 				console.log('Pressed 30 degree button')
+ 				console.log(lastStatusOnOff)
+ 				console.log(buttonCode)
+ 				buttonCode = 30; 
+ 				if(lastStatusOnOff == 1) {
+ 					console.log('Pressed 30, current on');
+ 					btn30Deg.value = "BTN_30_ON";
+ 					ws.send(btn30Deg.value);
+ 				}
 			});
 
 			btnOnOff.addEventListener('click', function (event) {
- 				console.log('Pressed on/off button');
- 				btnOnOff.value = "BTN_ONOFF_PRESSED";
- 				ws.send(btnOnOff.value);
+ 				console.log('Pressed on/off ')
+ 				console.log(lastStatusOnOff)
+ 				console.log(buttonCode)
+ 				if(lastStatusOnOff == 0) {
+ 					console.log('Pressed on/off, current on ');
+ 					lastStatusOnOff  = 1;
+ 				 	if (buttonCode == 20) {
+ 				 		btn20Deg.value = "BTN_20_ON";
+ 				 		ws.send(btn20Deg.value);		
+ 				 	} else if (buttonCode == 30) {
+ 				 		btn30Deg.value = "BTN_30_ON";
+ 				 		ws.send(btn30Deg.value);
+ 				 	}
+ 				} else {
+ 					console.log('Pressed on/off, current off ');
+ 					lastStatusOnOff = 0;
+ 					btnOnOff.value = "BTN_ONOFF_PRESSED";
+ 					ws.send(btnOnOff.value);
+ 				}
+
 			});
 		</script>
 	</body>

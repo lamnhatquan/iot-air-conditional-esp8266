@@ -33,9 +33,9 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       break;
     case WStype_TEXT:
       Serial.printf("[WSc] get text: %s\n", payload);
-      if (strcmp((char*)payload, "BTN_20_PRESSED") == 0) {
+      if (strcmp((char*)payload, "BTN_20_ON") == 0) {
         digitalWrite(LED_20_DEG, 1); // Khi client (web-browser) phát sự kiện "BTN_20_PRESSED" thì server sẽ broadcast gói tin đến ESP8266
-      } else if (strcmp((char*)payload, "BTN_30_PRESSED") == 0) {
+      } else if (strcmp((char*)payload, "BTN_30_ON") == 0) {
         digitalWrite(LED_30_DEG, 1);
       } else if (strcmp((char*)payload, "BTN_ONOFF_PRESSED") == 0) {
         digitalWrite(LED_20_DEG, 0);
@@ -95,21 +95,14 @@ void setup() {
   display.drawString(40, 30, "IoT A/C");
   display.display();
   delay(5000);
+  
   // Init dht
   dht.begin();
-
-  //  //  Init and connect to Wifi
-  //  WiFi.begin(ssid, password);
-  //  while (WiFi.status() != WL_CONNECTED) {
-  //    delay(500);
-  //    Serial.print(".");
-  //  }
-  //  Serial.println("connected");
-
+  
   // Init and connect to Wifi using Wifi Manager
   setupWifi();
+  
   //  Init webcocket client
-
   webSocket.begin("10.237.219.224", 8000);  // IP address your computer
   webSocket.onEvent(webSocketEvent);
 }
