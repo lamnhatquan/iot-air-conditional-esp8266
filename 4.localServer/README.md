@@ -25,12 +25,15 @@ Gồm ESP8266 và web browser với các chức năng:
 ## Kết quả 
 
 Hình ảnh trang giao diện HTML 
+
 ![Server chạy ở máy tính](/images/senData.png)
 
 Trang giao diện hiển thị nhiệt độ, độ ẩm và điều khiển máy điều hòa nhiệt độ
-![trang index](/images/interFace.png)
+
+![trang index](/images/interface.png)
 
 Dữ liệu rawData nhận được khi nhấn các button trên trang index.
-![data send to A/C](/images/reveiveData.png)
+
+![data send to A/C](/images/receiveData.png)
 
 
