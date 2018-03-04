@@ -7,6 +7,30 @@
 
 ## Clients
 
-Gồm ESP8266 web browser :
+Gồm ESP8266 và web browser với các chức năng:
+
 - Kết nối đến server thông qua phương thức websocket
-- Gửi dữ liệu lên server để server Broadcast gói tin đến client khác
+- Gửi dữ liệu lên server để server Broadcast gói tin đến client khác.
+
+#### ESP8266 
+
+- Đọc nhiệt độ, độ ẩm của DHT11và hiển thị trên OLED 
+- Kết nối với mạng wifi sử dụng wifimanager 
+- Gửi dữ liệu tới server local mỗi 3s 
+
+#### Web browser
+
+- Lấy dữ liệu từ server khi server broadcast gói tin đến các client, hiển thị lên text nhiệt độ, độ ẩm. 
+
+## Kết quả 
+
+Hình ảnh trang giao diện HTML 
+![Server chạy ở máy tính](/images/senData.png)
+
+Trang giao diện hiển thị nhiệt độ, độ ẩm và điều khiển máy điều hòa nhiệt độ
+![trang index](/images/interFace.png)
+
+Dữ liệu rawData nhận được khi nhấn các button trên trang index.
+![data send to A/C](/images/reveiveData.png)
+
+

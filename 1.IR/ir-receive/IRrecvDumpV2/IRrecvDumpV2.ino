@@ -67,6 +67,7 @@ void setup()
   Serial.begin(BAUD_RATE, SERIAL_8N1, SERIAL_TX_ONLY);
   delay(500);  // Wait a bit for the serial connection to be establised.
   irrecv.enableIRIn();  // Start the receiver
+  Serial.printf("WARNING: IR code is ");
 }
 
 void loop() 
